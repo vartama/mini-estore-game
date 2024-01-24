@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String     @id @default(uuid())
+  email       String     @unique
+  password    String
+  fullName    String
+  phoneNumber String
+  gender      String
+  role        String
+  dateOfBirth DateTime   @db.Date
+  createdAt   DateTime   @default(now()) @db.Date
+  updatedAt   DateTime   @default(now()) @db.Date
+  Bookmark    Bookmark[]
+  Purchase    Purchase[]
+  HistoryPurchase HistoryPurchase[]
+}
+
+
+model Genre {
+  id    String @id @default(uuid())
+  name  String
+  createdAt    DateTime   @default(now()) @db.Date
+  updatedAt    DateTime   @default(now()) @db.Date
+  games  Game[]
+
+}
+
+model Game {
+  id              String @id @default(uuid())
+  tittle          String 
+  description     String
+  rating          Decimal
+  price           BigInt
+  releasedYear    DateTime @db.Date
+  imageURL        String
+  Genre           Genre?  @relation(fields: [genreId], references: [id])
+  genreId         String?
+  Purchase        Purchase[]
+  bookmark        Bookmark[]
+  HistoryPurchase HistoryPurchase[]
+
+}
+
+model Purchase {
+  id           String     @id @default(uuid())
+  totalPrice   Int
+  status       String
+  createdAt    DateTime   @default(now()) @db.Date
+  checkInAt    DateTime   @db.Date
+  checkOutAt   DateTime   @db.Date
+  customerName String
+  Game         Game?      @relation(fields: [gameId], references: [id])
+  User         User?      @relation(fields: [userId], references: [id])
+  gameId       String
+  userId       String
+}
+
+
+model Bookmark {
+  id      String @id @default(uuid())
+  User    User?  @relation(fields: [UserId], references: [id])
+  Game    Game?  @relation(fields: [GameId], references: [id])
+  UserId  String
+  GameId  String
+}
+
+model HistoryPurchase {
+  id          String @id @default(uuid())
+  User    User?  @relation(fields: [UserId], references: [id])
+  Game    Game?  @relation(fields: [GameId], references: [id])
+  UserId      String
+  GameId      String
+}
